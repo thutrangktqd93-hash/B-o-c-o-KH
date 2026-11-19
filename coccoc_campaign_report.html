@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo chiến dịch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f5f2;
+    --surface-1: #fcfcfb;
+    --border: #e4e3de;
+    --grid: #ecebe6;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #85847f;
+    --brand: #0f8a3c;
+    --brand-soft: #e6f4ea;
+    --good: #0b7a2e;
+    --bad: #c23b3a;
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-4: #eda100;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #121211;
+      --surface-1: #1a1a19;
+      --border: #2c2c2a;
+      --grid: #262624;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #8d8c85;
+      --brand: #3fbf6a;
+      --brand-soft: #18301f;
+      --good: #4cc574;
+      --bad: #e66767;
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121211; --surface-1: #1a1a19; --border: #2c2c2a; --grid: #262624;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8d8c85;
+    --brand: #3fbf6a; --brand-soft: #18301f; --good: #4cc574; --bad: #e66767;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --shadow: none;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text-primary);
+    font-family: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+    font-size: 15px; line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 56px; }
+
+  header.top {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+    padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--brand); background: var(--brand-soft); padding: 4px 10px; border-radius: 999px;
+  }
+  .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
+  h1 { font-size: clamp(24px, 4vw, 34px); line-height: 1.2; margin: 12px 0 4px; font-weight: 700; letter-spacing: -.01em; }
+  .sub { color: var(--text-secondary); margin: 0; }
+  .meta { text-align: right; color: var(--text-secondary); font-size: 13px; }
+  .meta b { color: var(--text-primary); font-weight: 600; display: block; font-size: 15px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 1000px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 520px) { .kpis { grid-template-columns: repeat(2, 1fr); } .kpi .value { font-size: 22px; } }
+  .kpi {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px; box-shadow: var(--shadow);
+  }
+  .kpi .label { font-size: 13px; color: var(--text-secondary); }
+  .kpi .value { font-size: 26px; font-weight: 700; margin: 4px 0 2px; letter-spacing: -.01em; }
+  .kpi .delta { font-size: 12px; color: var(--text-muted); }
+  .kpi .delta .up { color: var(--good); font-weight: 600; }
+  .kpi .delta .down { color: var(--bad); font-weight: 600; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; min-width: 0;
+  }
+  .card h2 { font-size: 17px; margin: 0; font-weight: 600; }
+  .card .desc { font-size: 13px; color: var(--text-secondary); margin: 2px 0 14px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .chart { width: 100%; position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { font-family: inherit; }
+  .bar { transition: opacity .15s; }
+  .chart:hover .bar { opacity: .55; }
+  .chart .bar.on { opacity: 1; }
+
+  .insights { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .insights li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text-secondary); }
+  .insights li b { color: var(--text-primary); font-weight: 600; }
+  .insights .dot { flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--brand-soft); color: var(--brand);
+    display: grid; place-items: center; font-size: 12px; font-weight: 700; margin-top: 1px; }
+
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 620px; }
+  th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+  tfoot td { font-weight: 700; border-bottom: none; }
+  td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 0; }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 10; opacity: 0; transition: opacity .1s;
+    background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 12px; font-size: 13px; box-shadow: 0 6px 24px rgba(0,0,0,.14); min-width: 150px;
+  }
+  .tip .t { font-weight: 600; margin-bottom: 4px; }
+  .tip .r { display: flex; justify-content: space-between; gap: 16px; color: var(--text-secondary); }
+  .tip .r b { color: var(--text-primary); font-weight: 600; }
+
+  footer { margin-top: 24px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .loadcsv { font: inherit; font-size: 12px; color: var(--text-secondary); background: none; border: 1px dashed var(--border); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  .loadcsv:hover { color: var(--text-primary); border-color: var(--text-muted); }
+  @media print { .loadcsv { display: none; } body { background: #fff; } .card, .kpi { box-shadow: none; break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="eyebrow">Báo cáo chiến dịch quảng cáo</span>
+      <h1>Nội Thất An Gia — Mùa Lễ Hội 2026</h1>
+      <p class="sub">Hiệu quả quảng cáo trên 4 định dạng</p>
+    </div>
+    <div class="meta">
+      <span>Giai đoạn báo cáo</span>
+      <b id="period">—</b>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="card">
+    <h2>Lượt click theo tháng</h2>
+    <p class="desc">Theo từng định dạng quảng cáo · Di chuột vào cột để xem chi tiết</p>
+    <div class="legend" id="legend-clicks"></div>
+    <div class="chart" id="chart-clicks"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Chuyển đổi theo định dạng</h2>
+      <p class="desc">Tổng cả giai đoạn</p>
+      <div class="chart" id="chart-conv"></div>
+    </div>
+    <div class="card">
+      <h2>Chi phí mỗi chuyển đổi (CPA)</h2>
+      <p class="desc">VNĐ / chuyển đổi, toàn chiến dịch · càng thấp càng tốt</p>
+      <div class="chart" id="chart-cpa"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Điểm nổi bật</h2>
+    <p class="desc">Tóm tắt từ số liệu chiến dịch</p>
+    <ul class="insights" id="insights"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Chi tiết theo định dạng</h2>
+    <p class="desc">Tổng cả giai đoạn</p>
+    <div class="tablewrap"><table id="table"></table></div>
+  </div>
+
+  <footer>
+    <span>Số liệu mẫu</span>
+    <label class="loadcsv">Tải file CSV khác<input type="file" accept=".csv" id="csvfile" hidden></label>
+  </footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<!-- Dữ liệu nhúng sẵn để trang mở được trực tiếp, không cần server -->
+<script type="text/csv" id="csv-data">
+thang,dinh_dang,luot_hien_thi,luot_click,chi_phi_vnd,chuyen_doi
+2026-06,Search Ads,412300,17150,44590000,1080
+2026-06,Newtab Banner,2058400,13380,14718000,362
+2026-06,Native Display,1486200,13520,18928000,410
+2026-06,Video Ads,792500,8710,15678000,196
+2026-07,Search Ads,451800,19240,49820000,1265
+2026-07,Newtab Banner,2264100,14960,16310000,420
+2026-07,Native Display,1632400,14810,20430000,468
+2026-07,Video Ads,866300,9580,17150000,221
+2026-08,Search Ads,498600,21470,55190000,1452
+2026-08,Newtab Banner,2431700,15810,17240000,461
+2026-08,Native Display,1758900,16290,22480000,532
+2026-08,Video Ads,941200,10450,18710000,252
+2026-09,Search Ads,532400,22960,58540000,1611
+2026-09,Newtab Banner,2610500,17230,18610000,518
+2026-09,Native Display,1873600,17420,23870000,584
+2026-09,Video Ads,1012800,11340,20070000,285
+2026-10,Search Ads,589700,25580,64460000,1842
+2026-10,Newtab Banner,2847300,18790,20110000,586
+2026-10,Native Display,2024100,18830,25610000,649
+2026-10,Video Ads,1098400,12410,21720000,322
+2026-11,Search Ads,631200,27640,68820000,2034
+2026-11,Newtab Banner,3012600,19880,21070000,638
+2026-11,Native Display,2156800,20280,27170000,712
+2026-11,Video Ads,1174300,13290,23120000,356
+</script>
+
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const nf = new Intl.NumberFormat("vi-VN");
+  const fmt = n => nf.format(Math.round(n));
+  const short = n => n >= 1e9 ? (n/1e9).toFixed(1).replace(".", ",") + " tỷ"
+                   : n >= 1e6 ? (n/1e6).toFixed(1).replace(".", ",") + " tr"
+                   : n >= 1e3 ? (n/1e3).toFixed(n >= 1e4 ? 0 : 1).replace(".", ",") + "k" : fmt(n);
+  const pct = (n, d = 2) => (n * 100).toFixed(d).replace(".", ",") + "%";
+  const monthLabel = m => "Th" + parseInt(m.split("-")[1], 10);
+  const monthFull = m => { const [y, mo] = m.split("-"); return "Tháng " + parseInt(mo, 10) + "/" + y; };
+  const SERIES = ["var(--series-1)", "var(--series-2)", "var(--series-3)", "var(--series-4)"];
+
+  let data, months, formats, colorOf;
+
+  function parse(text) {
+    const lines = text.trim().split(/\r?\n/).filter(Boolean);
+    const head = lines.shift().split(",").map(s => s.trim());
+    return lines.map(l => {
+      const c = l.split(",").map(s => s.trim()), o = {};
+      head.forEach((h, i) => o[h] = isNaN(+c[i]) || c[i] === "" ? c[i] : +c[i]);
+      return o;
+    });
+  }
+  const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
+  const byMonth = m => data.filter(r => r.thang === m);
+  const byFormat = f => data.filter(r => r.dinh_dang === f);
+
+  // ---------- tooltip ----------
+  const tip = document.getElementById("tip");
+  function showTip(e, title, rows) {
+    tip.innerHTML = `<div class="t">${title}</div>` + rows.map(([k, v]) => `<div class="r"><span>${k}</span><b>${v}</b></div>`).join("");
+    tip.style.opacity = 1;
+    const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    if (x + w > innerWidth - 8) x = e.clientX - w - pad;
+    if (y + h > innerHeight - 8) y = e.clientY - h - pad;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  const hideTip = () => tip.style.opacity = 0;
+
+  // ---------- svg helpers ----------
+  const el = (tag, attrs = {}, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+  // bar with 4px rounded top, square at the baseline
+  function barPath(x, y, w, h, r = 4) {
+    r = Math.min(r, w / 2, h);
+    return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+  }
+  function hbarPath(x, y, w, h, r = 4) {
+    r = Math.min(r, h / 2, w);
+    return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`;
+  }
+  function niceMax(v) {
+    const p = Math.pow(10, Math.floor(Math.log10(v))), m = v / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+  function bindHover(chart, node, onMove) {
+    node.addEventListener("mousemove", e => { node.classList.add("on"); onMove(e); });
+    node.addEventListener("mouseleave", () => { node.classList.remove("on"); hideTip(); });
+  }
+
+  // ---------- chart 1: grouped vertical bars ----------
+  function drawGrouped() {
+    const host = document.getElementById("chart-clicks");
+    host.innerHTML = "";
+    const W = Math.max(host.clientWidth, 300), H = W < 560 ? 260 : 320;
+    const m = { t: 10, r: 4, b: 30, l: 44 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Biểu đồ cột lượt click theo tháng và định dạng" }, host);
+    const vals = data.map(r => r.luot_click), max = niceMax(Math.max(...vals));
+    const y = v => m.t + ih - (v / max) * ih;
+    for (let i = 0; i <= 4; i++) {
+      const v = max * i / 4, yy = y(v);
+      el("line", { x1: m.l, x2: W - m.r, y1: yy, y2: yy, stroke: i ? "var(--grid)" : "var(--border)", "stroke-width": 1 }, svg);
+      el("text", { x: m.l - 8, y: yy + 4, "text-anchor": "end", "font-size": 11, fill: "var(--text-muted)" }, svg).textContent = short(v);
+    }
+    const gw = iw / months.length, inner = gw * (W < 560 ? 0.82 : 0.7), gap = 2;
+    const bw = (inner - gap * (formats.length - 1)) / formats.length;
+    months.forEach((mo, i) => {
+      const gx = m.l + i * gw + (gw - inner) / 2;
+      formats.forEach((f, j) => {
+        const r = data.find(d => d.thang === mo && d.dinh_dang === f);
+        const x = gx + j * (bw + gap), yy = y(r.luot_click), h = m.t + ih - yy;
+        const g = el("g", { class: "bar" }, svg);
+        el("rect", { x: gx + j * (bw + gap) - gap / 2, y: m.t, width: bw + gap, height: ih, fill: "transparent" }, g);
+        el("path", { d: barPath(x, yy, bw, h), fill: colorOf[f] }, g);
+        bindHover(host, g, e => showTip(e, `${f} · ${monthFull(mo)}`, [
+          ["Lượt click", fmt(r.luot_click)], ["CTR", pct(r.luot_click / r.luot_hien_thi)], ["Chi phí", fmt(r.chi_phi_vnd) + " đ"]
+        ]));
+      });
+      el("text", { x: m.l + i * gw + gw / 2, y: H - 10, "text-anchor": "middle", "font-size": 12, fill: "var(--text-secondary)" }, svg).textContent = monthLabel(mo);
+    });
+  }
+
+  // ---------- chart 2: horizontal bars ----------
+  function drawConv() {
+    const host = document.getElementById("chart-conv");
+    host.innerHTML = "";
+    const W = Math.max(host.clientWidth, 280);
+    const rows = formats.map(f => ({ f, v: sum(byFormat(f), "chuyen_doi"), s: sum(byFormat(f), "chi_phi_vnd") })).sort((a, b) => b.v - a.v);
+    const rowH = 44, labelW = W < 400 ? 104 : 120, valW = 56;
+    const H = rows.length * rowH;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Biểu đồ thanh chuyển đổi theo định dạng" }, host);
+    const max = Math.max(...rows.map(r => r.v)), iw = W - labelW - valW;
+    const total = rows.reduce((a, r) => a + r.v, 0);
+    rows.forEach((r, i) => {
+      const yy = i * rowH + 10, h = rowH - 20, w = (r.v / max) * iw;
+      const g = el("g", { class: "bar" }, svg);
+      el("rect", { x: 0, y: i * rowH, width: W, height: rowH, fill: "transparent" }, g);
+      el("text", { x: 0, y: yy + h / 2 + 4, "font-size": 13, fill: "var(--text-secondary)" }, g).textContent = r.f;
+      el("rect", { x: labelW, y: yy, width: iw, height: h, rx: 4, fill: "var(--grid)" }, g);
+      el("path", { d: hbarPath(labelW, yy, w, h), fill: "var(--series-1)" }, g);
+      el("text", { x: W, y: yy + h / 2 + 4, "text-anchor": "end", "font-size": 13, "font-weight": 600, fill: "var(--text-primary)" }, g).textContent = fmt(r.v);
+      bindHover(host, g, e => showTip(e, r.f, [
+        ["Chuyển đổi", fmt(r.v)], ["Tỷ trọng", pct(r.v / total, 1)], ["CPA", fmt(r.s / r.v) + " đ"]
+      ]));
+    });
+  }
+
+  // ---------- chart 3: CPA by month ----------
+  function drawCPA() {
+    const host = document.getElementById("chart-cpa");
+    host.innerHTML = "";
+    const W = Math.max(host.clientWidth, 280), H = 176;
+    const m = { t: 22, r: 4, b: 26, l: 4 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const rows = months.map(mo => { const r = byMonth(mo); return { mo, s: sum(r, "chi_phi_vnd"), c: sum(r, "chuyen_doi") }; })
+                       .map(r => ({ ...r, v: r.s / r.c }));
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Biểu đồ cột CPA theo tháng" }, host);
+    const max = Math.max(...rows.map(r => r.v)) * 1.05;
+    const bw = Math.min(44, iw / rows.length * 0.56), step = iw / rows.length;
+    el("line", { x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih, stroke: "var(--border)" }, svg);
+    rows.forEach((r, i) => {
+      const x = m.l + i * step + (step - bw) / 2, h = (r.v / max) * ih, yy = m.t + ih - h;
+      const last = i === rows.length - 1, first = i === 0;
+      const g = el("g", { class: "bar" }, svg);
+      el("rect", { x: m.l + i * step, y: 0, width: step, height: H, fill: "transparent" }, g);
+      el("path", { d: barPath(x, yy, bw, h), fill: "var(--series-3)" }, g);
+      if (first || last) {
+        el("text", { x: x + bw / 2, y: yy - 6, "text-anchor": "middle", "font-size": 12, "font-weight": 600, fill: "var(--text-primary)" }, g).textContent = short(r.v);
+      }
+      el("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle", "font-size": 12, fill: "var(--text-secondary)" }, g).textContent = monthLabel(r.mo);
+      bindHover(host, g, e => showTip(e, monthFull(r.mo), [
+        ["CPA", fmt(r.v) + " đ"], ["Chuyển đổi", fmt(r.c)], ["Chi phí", fmt(r.s) + " đ"]
+      ]));
+    });
+  }
+
+  // ---------- KPIs, insights, table ----------
+  function renderStatic() {
+    const tot = k => sum(data, k);
+    const lastM = months[months.length - 1], prevM = months[months.length - 2];
+    const L = byMonth(lastM), P = byMonth(prevM);
+    const delta = (a, b, invert) => {
+      if (!b) return "";
+      const d = (a - b) / b, good = invert ? d < 0 : d > 0;
+      return `<span class="${good ? "up" : "down"}">${d > 0 ? "▲" : "▼"} ${pct(Math.abs(d), 1)}</span> so với ${monthLabel(prevM)}`;
+    };
+    const imp = tot("luot_hien_thi"), clk = tot("luot_click"), sp = tot("chi_phi_vnd"), cv = tot("chuyen_doi");
+    const r = (rows, a, b) => sum(rows, a) / sum(rows, b);
+    const kpis = [
+      ["Lượt hiển thị", short(imp), delta(sum(L, "luot_hien_thi"), sum(P, "luot_hien_thi"))],
+      ["Lượt click", short(clk), delta(sum(L, "luot_click"), sum(P, "luot_click"))],
+      ["CTR", pct(clk / imp), delta(r(L, "luot_click", "luot_hien_thi"), r(P, "luot_click", "luot_hien_thi"))],
+      ["Chuyển đổi", fmt(cv), delta(sum(L, "chuyen_doi"), sum(P, "chuyen_doi"))],
+      ["Tổng chi phí", short(sp) + " đ", delta(sum(L, "chi_phi_vnd"), sum(P, "chi_phi_vnd"), true)],
+      ["CPA trung bình", short(sp / cv) + " đ", delta(r(L, "chi_phi_vnd", "chuyen_doi"), r(P, "chi_phi_vnd", "chuyen_doi"), true)],
+    ];
+    document.getElementById("kpis").innerHTML = kpis.map(([l, v, d]) =>
+      `<div class="kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="delta">${d || "&nbsp;"}</div></div>`).join("");
+
+    document.getElementById("period").textContent = `${monthFull(months[0]).replace("Tháng ", "Th")} – ${monthFull(lastM).replace("Tháng ", "Th")}`;
+
+    document.getElementById("legend-clicks").innerHTML = formats.map(f => `<span><i style="background:${colorOf[f]}"></i>${f}</span>`).join("");
+
+    // table
+    const fr = formats.map(f => { const R = byFormat(f); return { f, i: sum(R, "luot_hien_thi"), c: sum(R, "luot_click"), s: sum(R, "chi_phi_vnd"), v: sum(R, "chuyen_doi") }; });
+    const row = (name, o, sw) => `<tr><td>${sw ? `<span class="sw" style="background:${sw}"></span>` : ""}${name}</td><td>${fmt(o.i)}</td><td>${fmt(o.c)}</td><td>${pct(o.c / o.i)}</td><td>${fmt(o.s)}</td><td>${fmt(o.v)}</td><td>${fmt(o.s / o.v)}</td></tr>`;
+    document.getElementById("table").innerHTML =
+      `<thead><tr><th>Định dạng</th><th>Hiển thị</th><th>Click</th><th>CTR</th><th>Chi phí (đ)</th><th>Chuyển đổi</th><th>CPA (đ)</th></tr></thead>
+       <tbody>${fr.map(o => row(o.f, o, colorOf[o.f])).join("")}</tbody>
+       <tfoot>${row("Tổng", { i: imp, c: clk, s: sp, v: cv })}</tfoot>`;
+
+    // insights
+    const best = [...fr].sort((a, b) => b.v - a.v)[0];
+    const cheapest = [...fr].sort((a, b) => a.s / a.v - b.s / b.v)[0];
+    const widest = [...fr].sort((a, b) => b.i - a.i)[0];
+    const F = byMonth(months[0]);
+    const cpaChange = (r(L, "chi_phi_vnd", "chuyen_doi") - r(F, "chi_phi_vnd", "chuyen_doi")) / r(F, "chi_phi_vnd", "chuyen_doi");
+    const convGrowth = (sum(L, "chuyen_doi") - sum(F, "chuyen_doi")) / sum(F, "chuyen_doi");
+    const items = [
+      `<b>${best.f}</b> mang về nhiều chuyển đổi nhất với <b>${fmt(best.v)}</b> lượt (${pct(best.v / cv, 0)} tổng chuyển đổi).`,
+      `<b>${cheapest.f}</b> có CPA thấp nhất: <b>${fmt(cheapest.s / cheapest.v)} đ</b> mỗi chuyển đổi.`,
+      `Chuyển đổi hàng tháng tăng <b>${pct(convGrowth, 0)}</b> từ ${monthLabel(months[0])} đến ${monthLabel(lastM)}, trong khi CPA ${cpaChange < 0 ? "giảm" : "tăng"} <b>${pct(Math.abs(cpaChange), 0)}</b>.`,
+      `<b>${widest.f}</b> phủ rộng nhất với <b>${short(widest.i)}</b> lượt hiển thị — phù hợp để tăng nhận diện thương hiệu.`,
+    ];
+    document.getElementById("insights").innerHTML = items.map((t, i) => `<li><span class="dot">${i + 1}</span><span>${t}</span></li>`).join("");
+  }
+
+  function load(text) {
+    data = parse(text);
+    months = [...new Set(data.map(r => r.thang))].sort();
+    formats = [...new Set(data.map(r => r.dinh_dang))];
+    colorOf = Object.fromEntries(formats.map((f, i) => [f, SERIES[i] || "var(--text-muted)"]));
+    renderStatic(); drawAll();
+  }
+  function drawAll() { drawGrouped(); drawConv(); drawCPA(); }
+
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(drawAll, 120); });
+  document.getElementById("csvfile").addEventListener("change", e => {
+    const f = e.target.files[0]; if (!f) return;
+    f.text().then(load);
+  });
+  load(document.getElementById("csv-data").textContent);
+})();
+</script>
+</body>
+</html>
